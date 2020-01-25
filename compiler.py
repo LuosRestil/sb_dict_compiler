@@ -2,9 +2,11 @@ import requests
 import re
 from bs4 import BeautifulSoup
 import string
+import time
 
 # Ideally, should build a json structure, {a: {word: worddef, word: worddef, ...}, {b: {word:, worddef, ...}, ...}
 # Could then search for words more quickly, and definitions are available without API
+
 
 def check_webster(word):
     print('webster: checking')
@@ -21,25 +23,43 @@ def check_webster(word):
         elif word.endswith('es') and hword == word[0:-2]:
             print('webster: valid')
             return True
-        elif word.endswith('ies') and hword == word[0:-3] + 'y':
-            print('webster: valid')
-            return True
         else:
             print('webster: hword != word')
             variations = soup.find_all('span', class_='va')
             if variations:
                 print('webster: variations found')
                 for variation in variations:
-                    if word == variation.contents[0]:
+                    contents = variation.contents[0]
+                    if word == contents:
+                        print('webster: valid')
+                        return True
+                    elif word.endswith('s') and contents == word[0:-1]:
+                        print('webster: valid')
+                        return True
+                    elif word.endswith('es') and contents == word[0:-2]:
+                        print('webster: valid')
+                        return True
+                    elif word.endswith('ies') and contents == word[0:-3] + 'y':
                         print('webster: valid')
                         return True
             forms = soup.find_all('span', class_='if')
             if forms:
                 print('webster: forms found')
                 for form in forms:
-                    if word == form.contents[0]:
+                    contents = form.contents[0]
+                    if word == contents:
                         print('webster: valid')
                         return True
+                    elif word.endswith('s') and contents == word[0:-1]:
+                        print('webster: valid')
+                        return True
+                    elif word.endswith('es') and contents == word[0:-2]:
+                        print('webster: valid')
+                        return True
+                    elif word.endswith('ies') and contents == word[0:-3] + 'y':
+                        print('webster: valid')
+                        return True
+            print('webster: invalid')
     else:
         print('webster: invalid')
     return False
@@ -47,6 +67,7 @@ def check_webster(word):
 
 def check_oxford(word):
     print('oxford: checking')
+    time.sleep(5)
     r = requests.get(f'https://www.lexico.com/definition/{word}')
     soup = BeautifulSoup(r.text, 'html.parser')
     no_exact_matches = soup.find('div', class_='no-exact-matches')
@@ -77,7 +98,8 @@ def check_oxford(word):
             except AttributeError:
                 pass
             try:
-                variants = soup.find('div', class_='variant').find_all('strong')
+                variants = soup.find(
+                    'div', class_='variant').find_all('strong')
                 if variants:
                     print('oxford: variants found')
                     for variant in variants:
@@ -98,9 +120,6 @@ def check_oxford(word):
         elif word.endswith('es') and similar_results == word[0:-2]:
             print('oxford: valid')
             return True
-        elif word.endswith('ies') and similar_results == word[0:-3] + 'y':
-            print('oxford: valid')
-            return True
         print(f'oxford: redirecting to {similar_results}')
         redirect = requests.get(f'https://www.lexico.com{similar_results}')
         soup = BeautifulSoup(redirect.text, 'html.parser')
@@ -109,7 +128,18 @@ def check_oxford(word):
             if forms:
                 print('oxford: forms found')
                 for form in forms:
-                    if form.find('span').contents[0].translate(str.maketrans('', '', string.punctuation)) == word:
+                    stripped = form.find('span').contents[0].translate(
+                        str.maketrans('', '', string.punctuation))
+                    if stripped == word:
+                        print('oxford: valid')
+                        return True
+                    elif word.endswith('s') and stripped == word[0: -1]:
+                        print('oxford: valid')
+                        return True
+                    elif word.endswith('es') and stripped == word[0: -2]:
+                        print('oxford: valid')
+                        return True
+                    elif word.endswith('ies') and stripped == word[0:-3] + 'y':
                         print('oxford: valid')
                         return True
         except AttributeError:
@@ -121,6 +151,15 @@ def check_oxford(word):
                 for variant in variants:
                     if variant.contents[0] == word:
                         (print('oxford valid'))
+                        return True
+                    elif word.endswith('s') and variant == word[0: -1]:
+                        print('oxford: valid')
+                        return True
+                    elif word.endswith('es') and variant == word[0: -2]:
+                        print('oxford: valid')
+                        return True
+                    elif word.endswith('ies') and variant == word[0:-3] + 'y':
+                        print('oxford: valid')
                         return True
         except AttributeError:
             pass
@@ -153,15 +192,18 @@ def check_word(word):
     else:
         return False
 
+
 with open('dictionary.txt', 'r') as infile:
     with open('valid.txt', 'w') as valid:
         with open('invalid.txt', 'w') as invalid:
             for line in infile:
                 word = line[0:-1]
-                print(word)
                 if check_word(word):
                     print(f'{word}: VALID')
                     valid.write(line)
-                else: 
+                else:
                     print(f'{word}: INVALID')
                     invalid.write(line)
+
+
+# print(check_word('abashedly'))
