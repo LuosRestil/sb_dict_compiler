@@ -33,15 +33,16 @@ def check_webster(word):
                     if word == contents:
                         print('webster: valid')
                         return True
-                    elif word.endswith('s') and contents == word[0:-1]:
-                        print('webster: valid')
-                        return True
-                    elif word.endswith('es') and contents == word[0:-2]:
-                        print('webster: valid')
-                        return True
-                    elif word.endswith('ies') and contents == word[0:-3] + 'y':
-                        print('webster: valid')
-                        return True
+                    # UNSURE WHETHER TO INCLUDE THIS
+                    # elif word.endswith('s') and contents == word[0:-1]:
+                    #     print('webster: valid')
+                    #     return True
+                    # elif word.endswith('es') and contents == word[0:-2]:
+                    #     print('webster: valid')
+                    #     return True
+                    # elif word.endswith('ies') and contents == word[0:-3] + 'y':
+                    #     print('webster: valid')
+                    #     return True
             forms = soup.find_all('span', class_='if')
             if forms:
                 print('webster: forms found')
@@ -50,15 +51,16 @@ def check_webster(word):
                     if word == contents:
                         print('webster: valid')
                         return True
-                    elif word.endswith('s') and contents == word[0:-1]:
-                        print('webster: valid')
-                        return True
-                    elif word.endswith('es') and contents == word[0:-2]:
-                        print('webster: valid')
-                        return True
-                    elif word.endswith('ies') and contents == word[0:-3] + 'y':
-                        print('webster: valid')
-                        return True
+                    # UNSURE WHETHER TO INCLUDE THIS
+                    # elif word.endswith('s') and contents == word[0:-1]:
+                    #     print('webster: valid')
+                    #     return True
+                    # elif word.endswith('es') and contents == word[0:-2]:
+                    #     print('webster: valid')
+                    #     return True
+                    # elif word.endswith('ies') and contents == word[0:-3] + 'y':
+                    #     print('webster: valid')
+                    #     return True
             print('webster: invalid')
     else:
         print('webster: invalid')
@@ -92,9 +94,21 @@ def check_oxford(word):
                 if forms:
                     print('oxford: forms found')
                     for form in forms:
-                        if form.find('span').contents[0].translate(str.maketrans('', '', string.punctuation)) == word:
+                        stripped = form.find('span').contents[0].translate(
+                            str.maketrans('', '', string.punctuation))
+                        if stripped == word:
                             print('oxford: valid')
                             return True
+                        # UNSURE WHETHER TO INCLUDE THIS
+                        # elif word.endswith('s') and stripped == word[0: -1]:
+                        #     print('oxford: valid')
+                        #     return True
+                        # elif word.endswith('es') and stripped == word[0: -2]:
+                        #     print('oxford: valid')
+                        #     return True
+                        # elif word.endswith('ies') and stripped == word[0:-3] + 'y':
+                        #     print('oxford: valid')
+                        #     return True
             except AttributeError:
                 pass
             try:
@@ -104,15 +118,25 @@ def check_oxford(word):
                     print('oxford: variants found')
                     for variant in variants:
                         if variant.contents[0] == word:
-                            print('oxford: valid')
+                            (print('oxford valid'))
                             return True
+                        # UNSURE ABOUT WHETHER TO INCLUDE THIS
+                        # elif word.endswith('s') and variant == word[0: -1]:
+                        #     print('oxford: valid')
+                        #     return True
+                        # elif word.endswith('es') and variant == word[0: -2]:
+                        #     print('oxford: valid')
+                        #     return True
+                        # elif word.endswith('ies') and variant == word[0:-3] + 'y':
+                        #     print('oxford: valid')
+                        #     return True
             except AttributeError:
                 pass
     else:
         print('oxford: no exact matches')
         similar_results = soup.find('div', class_='similar-results').a['href']
         if similar_results == word:
-            print('Oxford valid')
+            print('oxford: valid')
             return True
         elif word.endswith('s') and similar_results == word[0:-1]:
             print('oxford: valid')
@@ -133,15 +157,16 @@ def check_oxford(word):
                     if stripped == word:
                         print('oxford: valid')
                         return True
-                    elif word.endswith('s') and stripped == word[0: -1]:
-                        print('oxford: valid')
-                        return True
-                    elif word.endswith('es') and stripped == word[0: -2]:
-                        print('oxford: valid')
-                        return True
-                    elif word.endswith('ies') and stripped == word[0:-3] + 'y':
-                        print('oxford: valid')
-                        return True
+                    # UNSURE WHETHER TO INCLUDE THIS
+                    # elif word.endswith('s') and stripped == word[0: -1]:
+                    #     print('oxford: valid')
+                    #     return True
+                    # elif word.endswith('es') and stripped == word[0: -2]:
+                    #     print('oxford: valid')
+                    #     return True
+                    # elif word.endswith('ies') and stripped == word[0:-3] + 'y':
+                    #     print('oxford: valid')
+                    #     return True
         except AttributeError:
             pass
         try:
@@ -152,15 +177,16 @@ def check_oxford(word):
                     if variant.contents[0] == word:
                         (print('oxford valid'))
                         return True
-                    elif word.endswith('s') and variant == word[0: -1]:
-                        print('oxford: valid')
-                        return True
-                    elif word.endswith('es') and variant == word[0: -2]:
-                        print('oxford: valid')
-                        return True
-                    elif word.endswith('ies') and variant == word[0:-3] + 'y':
-                        print('oxford: valid')
-                        return True
+                    # UNSURE ABOUT WHETHER TO INCLUDE THIS
+                    # elif word.endswith('s') and variant == word[0: -1]:
+                    #     print('oxford: valid')
+                    #     return True
+                    # elif word.endswith('es') and variant == word[0: -2]:
+                    #     print('oxford: valid')
+                    #     return True
+                    # elif word.endswith('ies') and variant == word[0:-3] + 'y':
+                    #     print('oxford: valid')
+                    #     return True
         except AttributeError:
             pass
 
@@ -193,7 +219,7 @@ def check_word(word):
         return False
 
 
-with open('dictionary.txt', 'r') as infile:
+with open('filtered_dict.txt', 'r') as infile:
     with open('valid.txt', 'w') as valid:
         with open('invalid.txt', 'w') as invalid:
             for line in infile:
@@ -206,4 +232,4 @@ with open('dictionary.txt', 'r') as infile:
                     invalid.write(line)
 
 
-# print(check_word('abashedly'))
+# print(check_word('abatjour'))
