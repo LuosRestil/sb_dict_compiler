@@ -129,19 +129,19 @@ def check_oxford(word):
     return False
 
 
-def check_wiktionary(word):
-    '''
-    check lang of word span.mw-headline == English
-    :param word:
-    :return:
-    '''
-    r = requests.get(f'https://en.wiktionary.org/wiki/{word}')
-    soup = BeautifulSoup(r.text, 'html.parser')
-    english = soup.find('span', id="English")
-    if english:
-        match = soup.find('div', class_="mw-parser-output").find_all('ol')
-        for item in match:
-            print(item.get_text())
+# def check_wiktionary(word):
+#     '''
+#     check lang of word span.mw-headline == English
+#     :param word:
+#     :return:
+#     '''
+#     r = requests.get(f'https://en.wiktionary.org/wiki/{word}')
+#     soup = BeautifulSoup(r.text, 'html.parser')
+#     english = soup.find('span', id="English")
+#     if english:
+#         match = soup.find('div', class_="mw-parser-output").find_all('ol')
+#         for item in match:
+#             print(item.get_text())
 
 
 def check_word(word):
@@ -153,4 +153,15 @@ def check_word(word):
     else:
         return False
 
-print(check_word('becky'))
+with open('dictionary.txt', 'r') as infile:
+    with open('valid.txt', 'w') as valid:
+        with open('invalid.txt', 'w') as invalid:
+            for line in infile:
+                word = line[0:-1]
+                print(word)
+                if check_word(word):
+                    print(f'{word}: VALID')
+                    valid.write(line)
+                else: 
+                    print(f'{word}: INVALID')
+                    invalid.write(line)
