@@ -4,8 +4,7 @@ from bs4 import BeautifulSoup
 import string
 import time
 
-# Ideally, should build a json structure, {a: {word: worddef, word: worddef, ...}, {b: {word:, worddef, ...}, ...}
-# Could then search for words more quickly, and definitions are available without API
+# Ideally, should build a json structure so words can be found more quickly
 
 
 def check_webster(word):
@@ -33,16 +32,6 @@ def check_webster(word):
                     if word == contents:
                         print('webster: valid')
                         return True
-                    # UNSURE WHETHER TO INCLUDE THIS
-                    # elif word.endswith('s') and contents == word[0:-1]:
-                    #     print('webster: valid')
-                    #     return True
-                    # elif word.endswith('es') and contents == word[0:-2]:
-                    #     print('webster: valid')
-                    #     return True
-                    # elif word.endswith('ies') and contents == word[0:-3] + 'y':
-                    #     print('webster: valid')
-                    #     return True
             forms = soup.find_all('span', class_='if')
             if forms:
                 print('webster: forms found')
@@ -51,16 +40,14 @@ def check_webster(word):
                     if word == contents:
                         print('webster: valid')
                         return True
-                    # UNSURE WHETHER TO INCLUDE THIS
-                    # elif word.endswith('s') and contents == word[0:-1]:
-                    #     print('webster: valid')
-                    #     return True
-                    # elif word.endswith('es') and contents == word[0:-2]:
-                    #     print('webster: valid')
-                    #     return True
-                    # elif word.endswith('ies') and contents == word[0:-3] + 'y':
-                    #     print('webster: valid')
-                    #     return True
+            other_words_from = soup.find_all('span', class_='ure')
+            if other_words_from:
+                print('webster: other words from found')
+                for other_word in other_words_from:
+                    contents = other_word.contents[0]
+                    if word == contents:
+                        print('webster: valid')
+                        return True
             print('webster: invalid')
     else:
         print('webster: invalid')
@@ -69,6 +56,7 @@ def check_webster(word):
 
 def check_oxford(word):
     print('oxford: checking')
+    # built-in delay so I don't get shut down by anti-scraping measures
     time.sleep(5)
     r = requests.get(f'https://www.lexico.com/definition/{word}')
     soup = BeautifulSoup(r.text, 'html.parser')
@@ -99,16 +87,6 @@ def check_oxford(word):
                         if stripped == word:
                             print('oxford: valid')
                             return True
-                        # UNSURE WHETHER TO INCLUDE THIS
-                        # elif word.endswith('s') and stripped == word[0: -1]:
-                        #     print('oxford: valid')
-                        #     return True
-                        # elif word.endswith('es') and stripped == word[0: -2]:
-                        #     print('oxford: valid')
-                        #     return True
-                        # elif word.endswith('ies') and stripped == word[0:-3] + 'y':
-                        #     print('oxford: valid')
-                        #     return True
             except AttributeError:
                 pass
             try:
@@ -120,16 +98,6 @@ def check_oxford(word):
                         if variant.contents[0] == word:
                             (print('oxford valid'))
                             return True
-                        # UNSURE ABOUT WHETHER TO INCLUDE THIS
-                        # elif word.endswith('s') and variant == word[0: -1]:
-                        #     print('oxford: valid')
-                        #     return True
-                        # elif word.endswith('es') and variant == word[0: -2]:
-                        #     print('oxford: valid')
-                        #     return True
-                        # elif word.endswith('ies') and variant == word[0:-3] + 'y':
-                        #     print('oxford: valid')
-                        #     return True
             except AttributeError:
                 pass
     else:
@@ -157,16 +125,6 @@ def check_oxford(word):
                     if stripped == word:
                         print('oxford: valid')
                         return True
-                    # UNSURE WHETHER TO INCLUDE THIS
-                    # elif word.endswith('s') and stripped == word[0: -1]:
-                    #     print('oxford: valid')
-                    #     return True
-                    # elif word.endswith('es') and stripped == word[0: -2]:
-                    #     print('oxford: valid')
-                    #     return True
-                    # elif word.endswith('ies') and stripped == word[0:-3] + 'y':
-                    #     print('oxford: valid')
-                    #     return True
         except AttributeError:
             pass
         try:
@@ -177,36 +135,11 @@ def check_oxford(word):
                     if variant.contents[0] == word:
                         (print('oxford valid'))
                         return True
-                    # UNSURE ABOUT WHETHER TO INCLUDE THIS
-                    # elif word.endswith('s') and variant == word[0: -1]:
-                    #     print('oxford: valid')
-                    #     return True
-                    # elif word.endswith('es') and variant == word[0: -2]:
-                    #     print('oxford: valid')
-                    #     return True
-                    # elif word.endswith('ies') and variant == word[0:-3] + 'y':
-                    #     print('oxford: valid')
-                    #     return True
         except AttributeError:
             pass
 
     print('oxford: invalid')
     return False
-
-
-# def check_wiktionary(word):
-#     '''
-#     check lang of word span.mw-headline == English
-#     :param word:
-#     :return:
-#     '''
-#     r = requests.get(f'https://en.wiktionary.org/wiki/{word}')
-#     soup = BeautifulSoup(r.text, 'html.parser')
-#     english = soup.find('span', id="English")
-#     if english:
-#         match = soup.find('div', class_="mw-parser-output").find_all('ol')
-#         for item in match:
-#             print(item.get_text())
 
 
 def check_word(word):
@@ -222,6 +155,7 @@ def check_word(word):
 with open('filtered_dict.txt', 'r') as infile:
     with open('valid.txt', 'w') as valid:
         with open('invalid.txt', 'w') as invalid:
+            with open('possible_plural_or_3ps.txt', 'w') as pp:
             for line in infile:
                 word = line[0:-1]
                 if check_word(word):
@@ -229,7 +163,10 @@ with open('filtered_dict.txt', 'r') as infile:
                     valid.write(line)
                 else:
                     print(f'{word}: INVALID')
-                    invalid.write(line)
+                    if word.endswith('s'):
+                        pp.write(line)
+                    else:
+                        invalid.write(line)
 
 
-# print(check_word('abatjour'))
+# print(check_word('cancelable'))
