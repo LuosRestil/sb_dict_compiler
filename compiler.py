@@ -16,12 +16,6 @@ def check_webster(word):
         if hword == word:
             print('webster: valid')
             return True
-        elif word.endswith('s') and hword == word[0:-1]:
-            print('webster: valid')
-            return True
-        elif word.endswith('es') and hword == word[0:-2]:
-            print('webster: valid')
-            return True
         else:
             print('webster: hword != word')
             variations = soup.find_all('span', class_='va')
@@ -152,21 +146,21 @@ def check_word(word):
         return False
 
 
-with open('filtered_dict.txt', 'r') as infile:
-    with open('valid.txt', 'w') as valid:
-        with open('invalid.txt', 'w') as invalid:
-            with open('possible_plural_or_3ps.txt', 'w') as pp:
-            for line in infile:
-                word = line[0:-1]
-                if check_word(word):
-                    print(f'{word}: VALID')
-                    valid.write(line)
-                else:
-                    print(f'{word}: INVALID')
-                    if word.endswith('s'):
-                        pp.write(line)
+with open('letter_dict.txt', 'r') as infile:
+    with open('valid.txt', 'a') as valid:
+        with open('invalid.txt', 'a') as invalid:
+            with open('possible_plural_or_3ps.txt', 'a') as pp:
+                for line in infile:
+                    word = line[0:-1]
+                    if check_word(word):
+                        print(f'{word}: VALID')
+                        valid.write(line)
                     else:
-                        invalid.write(line)
+                        print(f'{word}: INVALID')
+                        if word.endswith('s'):
+                            pp.write(line)
+                        else:
+                            invalid.write(line)
 
 
-# print(check_word('cancelable'))
+# print(check_word('acquisita'))

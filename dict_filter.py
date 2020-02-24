@@ -1,4 +1,4 @@
-letter = 'a'
+letter = 'z'
 
 with open('filtered_dict.txt', 'r') as infile:
     with open('letter_dict.txt', 'w') as outfile:
